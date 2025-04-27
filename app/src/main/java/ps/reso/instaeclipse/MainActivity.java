@@ -9,7 +9,7 @@ import android.view.Window;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import ps.reso.instaeclipse.fragments.FeaturesFragment;
@@ -31,6 +31,12 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = Preferences.getEditor();
 
         setContentView(R.layout.activity_main);
+
+	MaterialToolbar toolbar = findViewById(R.id.top_app_bar);
+	setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
 
         // Make content appear under the status bar
         Window window = getWindow();
