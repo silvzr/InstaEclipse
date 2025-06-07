@@ -14,7 +14,7 @@ import java.util.List;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
-import ps.reso.instaeclipse.utils.CustomToast;
+import ps.reso.instaeclipse.utils.toast.CustomToast;
 
 public class FollowerIndicator {
     public String findFollowerStatusMethod(DexKitBridge bridge) {
@@ -43,11 +43,6 @@ public class FollowerIndicator {
                         for (Object param : invoked.getParamTypes()) {
                             paramTypes.add(String.valueOf(param));
                         }
-
-                        // Log everything
-//                        XposedBridge.log("👉 INVOKED: " + className + "." + methodName +
-//                                " | return: " + returnType +
-//                                " | params: " + paramTypes);
 
                         // ✅ Just find first method in User class with returnType boolean & no params
                         if (className.contains("com.instagram.user.model.User") && (returnType.contains("boolean"))) {
@@ -83,17 +78,15 @@ public class FollowerIndicator {
                     String username = (String) XposedHelpers.callMethod(user, "getUsername");
                     Boolean followsMe = (Boolean) param.getResult();
 
-                    String targetId = ps.reso.instaeclipse.utils.FollowToastTracker.currentlyViewedUserId;
+                    String targetId = ps.reso.instaeclipse.utils.tracker.FollowIndicatorTracker.currentlyViewedUserId;
 
                     if (userId != null && userId.equals(targetId)) {
 
-
-                        XposedBridge.log("👤 Profile viewed: @" + username + " (ID: " + userId + ") | Follows you: " + followsMe);
                         Context context = AndroidAppHelper.currentApplication().getApplicationContext();
                         String message = "@" + username + " (" + userId + ") " + (followsMe ? "follows you ✅" : "doesn’t follow you ❌");
                         CustomToast.showCustomToast(context, message);
 
-                        ps.reso.instaeclipse.utils.FollowToastTracker.currentlyViewedUserId = null;
+                        ps.reso.instaeclipse.utils.tracker.FollowIndicatorTracker.currentlyViewedUserId = null;
 
 
                     }
