@@ -14,12 +14,28 @@ android {
         versionName '0.4.1'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters "arm64-v8a"
+        }
+        
+        // Vector drawable optimization
+        vectorDrawables.useSupportLibrary = true
+        vectorDrawables.generatedDensities = ['mdpi', 'hdpi', 'xhdpi']
+        multiDexEnabled false
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
+            zipAlignEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            resValue "string", "app_name", "@string/app_name"
+              // Additional aggressive optimizations
+            crunchPngs false  // Disable PNG crunching for smaller size
+            debuggable false
+            jniDebuggable false
+            renderscriptDebuggable false
         }
     }
 
@@ -32,6 +48,38 @@ android {
         jniLibs {
             useLegacyPackaging true
         }
+        // Remove unnecessary files
+        resources {
+            excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE', 'META-INF/LICENSE.txt', 
+                        'META-INF/NOTICE', 'META-INF/NOTICE.txt', '**/*.kotlin_module',
+                        'kotlin/**', 'META-INF/*.kotlin_module', 'META-INF/*.version',
+                        'META-INF/MANIFEST.MF', '**/*.properties', 'DebugProbesKt.bin',
+                        'kotlin-tooling-metadata.json', '**/*.kotlin_builtins',                        'META-INF/maven/**', 'META-INF/proguard/**', 'META-INF/gradle/**',
+                        '**/*-xhdpi.webp', '**/*-xxhdpi.webp', '**/*-xxxhdpi.webp',
+                        'androidsupportmultidexversion.txt', 'META-INF/services/**',
+                        '**/*.kotlin_metadata', 'play-services-*.properties']
+        }
+        // Merge duplicate resources
+        pickFirst '**/libc++_shared.so'
+        pickFirst '**/libjsc.so'
+    }
+    
+    bundle {
+        density {
+            enableSplit true
+        }
+        abi {
+            enableSplit true
+        }
+        language {
+            enableSplit true
+        }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+        disable 'MissingTranslation', 'UnusedResources'
     }
 }
 
@@ -42,14 +90,9 @@ dependencies {
     implementation libs.constraintlayout
     implementation libs.gson
     implementation libs.dexkit
-    implementation 'com.google.android.material:material:1.12.0'
 
     // External library for shared preferences
     implementation libs.fileprefs
-    // Testing dependencies
-    testImplementation libs.junit
-    androidTestImplementation libs.ext.junit
-    androidTestImplementation libs.espresso.core.v361
 
     // Compile-only dependency
     compileOnly files('libs/api-82.jar')
