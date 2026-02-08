@@ -320,9 +320,14 @@ public class DialogUtils {
         layout.addView(devModeSwitch);
         layout.addView(createDivider(context));
 
+        LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        btnParams.gravity = Gravity.CENTER_HORIZONTAL;
+        btnParams.setMargins(0, dpToPx(context, 8), 0, dpToPx(context, 8));
+
         // 📥 Import Dev Config Button
         MaterialButton importButton = new MaterialButton(context);
         importButton.setText("📥 Import Dev Config");
+        importButton.setLayoutParams(btnParams);
         importButton.setOnClickListener(v -> {
             Activity instagramActivity = UIHookManager.getCurrentActivity();
             if (instagramActivity != null && !instagramActivity.isFinishing()) {
@@ -350,6 +355,7 @@ public class DialogUtils {
         // 📤 Export Dev Config Button
         MaterialButton exportButton = new MaterialButton(context);
         exportButton.setText("📤 Export Dev Config");
+        exportButton.setLayoutParams(btnParams);
         exportButton.setOnClickListener(v -> {
             FeatureFlags.isExportingConfig = true;
             Activity instagramActivity = UIHookManager.getCurrentActivity();
@@ -723,28 +729,29 @@ public class DialogUtils {
     private static void showAboutDialog(Context context) {
         LinearLayout layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(60, 40, 60, 20);
+        layout.setPadding(dpToPx(context, 24), dpToPx(context, 16), dpToPx(context, 24), dpToPx(context, 8));
         layout.setGravity(Gravity.CENTER_HORIZONTAL);
 
         TextView title = new TextView(context);
         title.setText("InstaEclipse 🌘");
         title.setTextColor(Color.WHITE);
-        title.setTextSize(20f);
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        title.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
         title.setGravity(Gravity.CENTER);
-        title.setPadding(0, 0, 0, 20);
+        title.setPadding(0, 0, 0, dpToPx(context, 8));
 
         TextView creator = new TextView(context);
         creator.setText("Created by @reso7200");
         creator.setTextColor(Color.LTGRAY);
-        creator.setTextSize(16f);
+        creator.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
         creator.setGravity(Gravity.CENTER);
-        creator.setPadding(0, 0, 0, 30);
+        creator.setPadding(0, 0, 0, dpToPx(context, 16));
 
         MaterialButton githubButton = new MaterialButton(context);
         githubButton.setText("🌐 GitHub Repo");
         githubButton.setTextColor(Color.WHITE);
         githubButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#3F51B5")));
-        githubButton.setPadding(40, 20, 40, 20);
+        githubButton.setPadding(dpToPx(context, 16), dpToPx(context, 8), dpToPx(context, 16), dpToPx(context, 8));
 
         LinearLayout.LayoutParams githubParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         githubParams.gravity = Gravity.CENTER_HORIZONTAL;
@@ -769,20 +776,21 @@ public class DialogUtils {
     private static void showRestartSection(Context context) {
         LinearLayout layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(60, 40, 60, 40);
+        layout.setPadding(dpToPx(context, 24), dpToPx(context, 16), dpToPx(context, 24), dpToPx(context, 16));
         layout.setGravity(Gravity.CENTER_HORIZONTAL);
 
         TextView message = new TextView(context);
         message.setText("⚠️ Clear app cache and restart?");
         message.setTextColor(Color.WHITE);
-        message.setTextSize(18f);
+        message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        message.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
         message.setGravity(Gravity.CENTER);
-        message.setPadding(0, 0, 0, 30);
+        message.setPadding(0, 0, 0, dpToPx(context, 16));
 
         MaterialButton restartButton = new MaterialButton(context);
         restartButton.setText("🔁 Restart Now");
         restartButton.setTextColor(Color.WHITE);
-        restartButton.setPadding(40, 20, 40, 20);
+        restartButton.setPadding(dpToPx(context, 16), dpToPx(context, 8), dpToPx(context, 16), dpToPx(context, 8));
 
         restartButton.setOnClickListener(v -> restartApp(context));
 
@@ -803,39 +811,37 @@ public class DialogUtils {
         // Wrap in a card-style layout
         LinearLayout container = new LinearLayout(context);
         container.setOrientation(LinearLayout.VERTICAL);
-        container.setPadding(40, 40, 40, 20);
+        container.setPadding(dpToPx(context, 24), dpToPx(context, 24), dpToPx(context, 24), dpToPx(context, 16));
 
         GradientDrawable background = new GradientDrawable();
         background.setColor(Color.parseColor("#262626"));
-        background.setCornerRadius(32);
+        background.setCornerRadius(dpToPx(context, 28));
         container.setBackground(background);
 
-        // Title
+        // Section Title
         TextView titleView = new TextView(context);
         titleView.setText(title);
         titleView.setTextColor(Color.WHITE);
-        titleView.setTextSize(22);
+        titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        titleView.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
         titleView.setGravity(Gravity.CENTER);
-        titleView.setPadding(0, 0, 0, 30);
+        titleView.setPadding(0, dpToPx(context, 16), 0, dpToPx(context, 16));
         container.addView(titleView);
 
         container.addView(createDivider(context));
         container.addView(contentLayout);
         container.addView(createDivider(context));
 
-        // Footer button
+        // Footer button (M3 style back)
         TextView backBtn = new TextView(context);
         backBtn.setText("← Back");
         backBtn.setTextColor(Color.WHITE);
-        backBtn.setTextSize(16);
+        backBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        backBtn.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
         backBtn.setGravity(Gravity.CENTER);
+        backBtn.setBackground(createRippleDrawable(Color.parseColor("#40FFFFFF")));
 
-        StateListDrawable states = new StateListDrawable();
-        states.addState(new int[]{android.R.attr.state_pressed}, new ColorDrawable(Color.parseColor("#40FFFFFF")));
-        states.addState(new int[]{}, new ColorDrawable(Color.TRANSPARENT));
-        backBtn.setBackground(states);
-
-        backBtn.setPadding(0, 30, 0, 10);
+        backBtn.setPadding(dpToPx(context, 16), dpToPx(context, 12), dpToPx(context, 16), dpToPx(context, 12));
         backBtn.setOnClickListener(v -> {
             onSave.run();
             SettingsManager.saveAllFlags();
