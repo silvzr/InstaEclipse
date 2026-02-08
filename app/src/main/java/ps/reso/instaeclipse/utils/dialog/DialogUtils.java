@@ -11,16 +11,18 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.StateListDrawable;
+import android.graphics.drawable.RippleDrawable;
+import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.materialswitch.MaterialSwitch;
 
 import java.io.File;
 import java.util.Objects;
@@ -69,20 +71,21 @@ public class DialogUtils {
     private static LinearLayout buildMainMenuLayout(Context context) {
         LinearLayout mainLayout = new LinearLayout(context);
         mainLayout.setOrientation(LinearLayout.VERTICAL);
-        mainLayout.setPadding(40, 40, 40, 20);
+        mainLayout.setPadding(dpToPx(context, 24), dpToPx(context, 24), dpToPx(context, 24), dpToPx(context, 16));
 
         GradientDrawable background = new GradientDrawable();
         background.setColor(Color.parseColor("#262626"));
-        background.setCornerRadius(32);
+        background.setCornerRadius(dpToPx(context, 28));
         mainLayout.setBackground(background);
 
-        // Title
+        // Title with M3 typography
         TextView title = new TextView(context);
         title.setText("InstaEclipse 🌘");
         title.setTextColor(Color.WHITE);
-        title.setTextSize(22);
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
+        title.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
         title.setGravity(Gravity.CENTER);
-        title.setPadding(0, 20, 0, 20);
+        title.setPadding(0, dpToPx(context, 8), 0, dpToPx(context, 16));
         mainLayout.addView(title);
 
         mainLayout.addView(createDivider(context));
@@ -112,33 +115,30 @@ public class DialogUtils {
 
         mainLayout.addView(createDivider(context));
 
-        // Footer Credit
+        // Footer Credit with M3 labelMedium
         TextView footer = new TextView(context);
         footer.setText("@reso7200");
         footer.setTextColor(Color.GRAY);
-        footer.setTextSize(14);
-        footer.setPadding(0, 30, 0, 10);
+        footer.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        footer.setPadding(0, dpToPx(context, 16), 0, dpToPx(context, 8));
         footer.setGravity(Gravity.CENTER_HORIZONTAL);
         mainLayout.addView(footer);
 
-        // Embedded Close Button
+        // Close Button with ripple effect
         TextView closeButton = new TextView(context);
-        closeButton.setText("❌ Close");
-        closeButton.setTextColor(Color.WHITE);
-        closeButton.setTextSize(16);
-        closeButton.setPadding(20, 30, 20, 30);
+        closeButton.setText("Close");
+        closeButton.setTextColor(Color.parseColor("#CF6679"));
+        closeButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        closeButton.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        closeButton.setPadding(dpToPx(context, 16), dpToPx(context, 20), dpToPx(context, 16), dpToPx(context, 20));
         closeButton.setGravity(Gravity.CENTER);
-
-        StateListDrawable states = new StateListDrawable();
-        states.addState(new int[]{android.R.attr.state_pressed}, new ColorDrawable(Color.parseColor("#40FFFFFF")));
-        states.addState(new int[]{}, new ColorDrawable(Color.TRANSPARENT));
-        closeButton.setBackground(states);
+        closeButton.setBackground(createRippleDrawable(Color.parseColor("#40FFFFFF")));
 
         closeButton.setOnClickListener(v -> {
             if (currentDialog != null) currentDialog.dismiss();
         });
 
-        mainLayout.addView(createDivider(context)); // Divider above close button
+        mainLayout.addView(createDivider(context));
         mainLayout.addView(closeButton);
 
         SettingsManager.saveAllFlags();
@@ -156,14 +156,14 @@ public class DialogUtils {
         LinearLayout layout = createSwitchLayout(context);
 
         // Create switches for customizing what gets toggled
-        Switch[] toggleSwitches = new Switch[]{createSwitch(context, "Include Hide Seen", FeatureFlags.quickToggleSeen), createSwitch(context, "Include Hide Typing", FeatureFlags.quickToggleTyping), createSwitch(context, "Include Disable Screenshot Detection", FeatureFlags.quickToggleScreenshot), createSwitch(context, "Include Hide View Once", FeatureFlags.quickToggleViewOnce), createSwitch(context, "Include Hide Story Seen", FeatureFlags.quickToggleStory), createSwitch(context, "Include Hide Live Seen", FeatureFlags.quickToggleLive)};
+        MaterialSwitch[] toggleSwitches = new MaterialSwitch[]{createSwitch(context, "Include Hide Seen", FeatureFlags.quickToggleSeen), createSwitch(context, "Include Hide Typing", FeatureFlags.quickToggleTyping), createSwitch(context, "Include Disable Screenshot Detection", FeatureFlags.quickToggleScreenshot), createSwitch(context, "Include Hide View Once", FeatureFlags.quickToggleViewOnce), createSwitch(context, "Include Hide Story Seen", FeatureFlags.quickToggleStory), createSwitch(context, "Include Hide Live Seen", FeatureFlags.quickToggleLive)};
 
         // Create Enable/Disable All switch
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch enableAllSwitch = createSwitch(context, "Enable/Disable All", areAllEnabled(toggleSwitches));
+        MaterialSwitch enableAllSwitch = createSwitch(context, "Enable/Disable All", areAllEnabled(toggleSwitches));
 
         // Master listener
         enableAllSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            for (Switch s : toggleSwitches) {
+            for (MaterialSwitch s : toggleSwitches) {
                 s.setChecked(isChecked);
             }
         });
@@ -175,7 +175,7 @@ public class DialogUtils {
                 enableAllSwitch.setOnCheckedChangeListener(null);
                 enableAllSwitch.setChecked(areAllEnabled(toggleSwitches));
                 enableAllSwitch.setOnCheckedChangeListener((buttonView2, isChecked2) -> {
-                    for (Switch s2 : toggleSwitches) {
+                    for (MaterialSwitch s2 : toggleSwitches) {
                         s2.setChecked(isChecked2);
                     }
                 });
@@ -219,7 +219,7 @@ public class DialogUtils {
         layout.addView(createEnableAllSwitch(context, enableAllSwitch)); // Styled enable all switch
         layout.addView(createDivider(context)); // Divider below
 
-        for (Switch s : toggleSwitches) {
+        for (MaterialSwitch s : toggleSwitches) {
             layout.addView(s);
         }
 
@@ -311,7 +311,7 @@ public class DialogUtils {
         LinearLayout layout = createSwitchLayout(context);
 
         // Developer Mode Switch
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch devModeSwitch = createSwitch(context, "Enable Developer Mode", FeatureFlags.isDevEnabled);
+        MaterialSwitch devModeSwitch = createSwitch(context, "Enable Developer Mode", FeatureFlags.isDevEnabled);
         devModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             FeatureFlags.isDevEnabled = isChecked;
             SettingsManager.saveAllFlags();
@@ -321,7 +321,7 @@ public class DialogUtils {
         layout.addView(createDivider(context));
 
         // 📥 Import Dev Config Button
-        Button importButton = new Button(context);
+        MaterialButton importButton = new MaterialButton(context);
         importButton.setText("📥 Import Dev Config");
         importButton.setOnClickListener(v -> {
             Activity instagramActivity = UIHookManager.getCurrentActivity();
@@ -348,7 +348,7 @@ public class DialogUtils {
 
 
         // 📤 Export Dev Config Button
-        Button exportButton = new Button(context);
+        MaterialButton exportButton = new MaterialButton(context);
         exportButton.setText("📤 Export Dev Config");
         exportButton.setOnClickListener(v -> {
             FeatureFlags.isExportingConfig = true;
@@ -381,14 +381,14 @@ public class DialogUtils {
     private static void showGhostOptions(Context context) {
         LinearLayout layout = createSwitchLayout(context);
 
-        Switch[] switches = new Switch[]{createSwitch(context, "Hide Seen", FeatureFlags.isGhostSeen), createSwitch(context, "Hide Typing", FeatureFlags.isGhostTyping), createSwitch(context, "Disable Screenshot Detection", FeatureFlags.isGhostScreenshot), createSwitch(context, "Hide View Once", FeatureFlags.isGhostViewOnce), createSwitch(context, "Hide Story Seen", FeatureFlags.isGhostStory), createSwitch(context, "Hide Live Seen", FeatureFlags.isGhostLive)};
+        MaterialSwitch[] switches = new MaterialSwitch[]{createSwitch(context, "Hide Seen", FeatureFlags.isGhostSeen), createSwitch(context, "Hide Typing", FeatureFlags.isGhostTyping), createSwitch(context, "Disable Screenshot Detection", FeatureFlags.isGhostScreenshot), createSwitch(context, "Hide View Once", FeatureFlags.isGhostViewOnce), createSwitch(context, "Hide Story Seen", FeatureFlags.isGhostStory), createSwitch(context, "Hide Live Seen", FeatureFlags.isGhostLive)};
 
         layout.addView(createClickableSection(context, "🛠 Customize Quick Toggle", () -> showGhostQuickToggleOptions(context)));
 
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch enableAllSwitch = createSwitch(context, "Enable/Disable All", areAllEnabled(switches));
+        MaterialSwitch enableAllSwitch = createSwitch(context, "Enable/Disable All", areAllEnabled(switches));
 
         enableAllSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            for (Switch s : switches) {
+            for (MaterialSwitch s : switches) {
                 s.setChecked(isChecked);
             }
         });
@@ -399,7 +399,7 @@ public class DialogUtils {
                 enableAllSwitch.setOnCheckedChangeListener(null);
                 enableAllSwitch.setChecked(areAllEnabled(switches));
                 enableAllSwitch.setOnCheckedChangeListener((buttonView2, isChecked2) -> {
-                    for (Switch s2 : switches) {
+                    for (MaterialSwitch s2 : switches) {
                         s2.setChecked(isChecked2);
                     }
                 });
@@ -441,7 +441,7 @@ public class DialogUtils {
         layout.addView(createEnableAllSwitch(context, enableAllSwitch));
         layout.addView(createDivider(context));
 
-        for (Switch s : switches) {
+        for (MaterialSwitch s : switches) {
             layout.addView(s);
         }
 
@@ -455,20 +455,20 @@ public class DialogUtils {
         LinearLayout layout = createSwitchLayout(context);
 
         // Create switches
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch adBlock = createSwitch(context, "Block Ads", FeatureFlags.isAdBlockEnabled);
+        MaterialSwitch adBlock = createSwitch(context, "Block Ads", FeatureFlags.isAdBlockEnabled);
 
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch analytics = createSwitch(context, "Block Analytics", FeatureFlags.isAnalyticsBlocked);
+        MaterialSwitch analytics = createSwitch(context, "Block Analytics", FeatureFlags.isAnalyticsBlocked);
 
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch trackingLinks = createSwitch(context, "Disable Tracking Links", FeatureFlags.disableTrackingLinks);
+        MaterialSwitch trackingLinks = createSwitch(context, "Disable Tracking Links", FeatureFlags.disableTrackingLinks);
 
-        Switch[] switches = new Switch[]{adBlock, analytics, trackingLinks};
+        MaterialSwitch[] switches = new MaterialSwitch[]{adBlock, analytics, trackingLinks};
 
         // Create Enable/Disable All switch
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch enableAllSwitch = createSwitch(context, "Enable/Disable All", areAllEnabled(switches));
+        MaterialSwitch enableAllSwitch = createSwitch(context, "Enable/Disable All", areAllEnabled(switches));
 
         // Master listener
         enableAllSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            for (Switch s : switches) {
+            for (MaterialSwitch s : switches) {
                 s.setChecked(isChecked);
             }
         });
@@ -480,7 +480,7 @@ public class DialogUtils {
                 enableAllSwitch.setOnCheckedChangeListener(null);
                 enableAllSwitch.setChecked(areAllEnabled(switches));
                 enableAllSwitch.setOnCheckedChangeListener((buttonView2, isChecked2) -> {
-                    for (Switch s2 : switches) {
+                    for (MaterialSwitch s2 : switches) {
                         s2.setChecked(isChecked2);
                     }
                 });
@@ -501,7 +501,7 @@ public class DialogUtils {
         layout.addView(createEnableAllSwitch(context, enableAllSwitch));
         layout.addView(createDivider(context));
 
-        for (Switch s : switches) {
+        for (MaterialSwitch s : switches) {
             layout.addView(s);
         }
 
@@ -515,19 +515,19 @@ public class DialogUtils {
         LinearLayout layout = createSwitchLayout(context);
 
         // Child switches
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch extremeModeSwitch = createSwitch(context, "Extreme Mode 🔒 (Irreversible until reinstall)", FeatureFlags.isExtremeMode);
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch disableStoriesSwitch = createSwitch(context, "Disable Stories", FeatureFlags.disableStories);
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch disableFeedSwitch = createSwitch(context, "Disable Feed", FeatureFlags.disableFeed);
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch disableReelsSwitch = createSwitch(context, "Disable Reels", FeatureFlags.disableReels);
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch onlyInDMSwitch = createSwitch(context, "Disable Reels Except in DMs", FeatureFlags.disableReelsExceptDM);
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch disableExploreSwitch = createSwitch(context, "Disable Explore", FeatureFlags.disableExplore);
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch disableCommentsSwitch = createSwitch(context, "Disable Comments", FeatureFlags.disableComments);
+        MaterialSwitch extremeModeSwitch = createSwitch(context, "Extreme Mode 🔒 (Irreversible until reinstall)", FeatureFlags.isExtremeMode);
+        MaterialSwitch disableStoriesSwitch = createSwitch(context, "Disable Stories", FeatureFlags.disableStories);
+        MaterialSwitch disableFeedSwitch = createSwitch(context, "Disable Feed", FeatureFlags.disableFeed);
+        MaterialSwitch disableReelsSwitch = createSwitch(context, "Disable Reels", FeatureFlags.disableReels);
+        MaterialSwitch onlyInDMSwitch = createSwitch(context, "Disable Reels Except in DMs", FeatureFlags.disableReelsExceptDM);
+        MaterialSwitch disableExploreSwitch = createSwitch(context, "Disable Explore", FeatureFlags.disableExplore);
+        MaterialSwitch disableCommentsSwitch = createSwitch(context, "Disable Comments", FeatureFlags.disableComments);
 
-        Switch[] switches = new Switch[]{disableStoriesSwitch, disableFeedSwitch, disableReelsSwitch, onlyInDMSwitch, disableExploreSwitch, disableCommentsSwitch};
+        MaterialSwitch[] switches = new MaterialSwitch[]{disableStoriesSwitch, disableFeedSwitch, disableReelsSwitch, onlyInDMSwitch, disableExploreSwitch, disableCommentsSwitch};
 
 
         // Enable/Disable All
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch enableAllSwitch = createSwitch(context, "Enable/Disable All", areAllEnabled(switches));
+        MaterialSwitch enableAllSwitch = createSwitch(context, "Enable/Disable All", areAllEnabled(switches));
 
         if (FeatureFlags.isExtremeMode) {
             disableAllSwitches(switches, enableAllSwitch, onlyInDMSwitch);
@@ -565,7 +565,7 @@ public class DialogUtils {
 
         // Master switch listener
         enableAllSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            for (Switch s : switches) {
+            for (MaterialSwitch s : switches) {
                 s.setChecked(isChecked);
                 s.setEnabled(true);
             }
@@ -597,7 +597,7 @@ public class DialogUtils {
         });
 
         // All other switches
-        for (Switch s : new Switch[]{disableStoriesSwitch, disableFeedSwitch, disableExploreSwitch, disableCommentsSwitch}) {
+        for (MaterialSwitch s : new MaterialSwitch[]{disableStoriesSwitch, disableFeedSwitch, disableExploreSwitch, disableCommentsSwitch}) {
             s.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 updateMasterSwitch(enableAllSwitch, switches, disableReelsSwitch, onlyInDMSwitch);
                 SettingsManager.saveAllFlags();
@@ -613,7 +613,7 @@ public class DialogUtils {
         layout.addView(createEnableAllSwitch(context, enableAllSwitch));
         layout.addView(createDivider(context));
 
-        for (Switch s : switches) {
+        for (MaterialSwitch s : switches) {
             layout.addView(s);
         }
 
@@ -629,9 +629,9 @@ public class DialogUtils {
         SettingsManager.saveAllFlags();
     }
 
-    private static void disableAllSwitches(Switch[] switches, @SuppressLint("UseSwitchCompatOrMaterialCode") Switch master, @SuppressLint("UseSwitchCompatOrMaterialCode") Switch onlyInDMSwitch) {
+    private static void disableAllSwitches(MaterialSwitch[] switches, MaterialSwitch master, MaterialSwitch onlyInDMSwitch) {
 
-        for (Switch s : switches) {
+        for (MaterialSwitch s : switches) {
             if (s == onlyInDMSwitch) {
                 // Special rule for onlyInDM
                 s.setEnabled(s.isChecked()); // editable only if it was checked
@@ -646,11 +646,11 @@ public class DialogUtils {
     }
 
 
-    private static void updateMasterSwitch(@SuppressLint("UseSwitchCompatOrMaterialCode") Switch enableAllSwitch, Switch[] switches, @SuppressLint("UseSwitchCompatOrMaterialCode") Switch disableReelsSwitch, @SuppressLint("UseSwitchCompatOrMaterialCode") Switch onlyInDMSwitch) {
+    private static void updateMasterSwitch(MaterialSwitch enableAllSwitch, MaterialSwitch[] switches, MaterialSwitch disableReelsSwitch, MaterialSwitch onlyInDMSwitch) {
         enableAllSwitch.setOnCheckedChangeListener(null);
         enableAllSwitch.setChecked(areAllEnabled(switches));
         enableAllSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            for (Switch s : switches) {
+            for (MaterialSwitch s : switches) {
                 s.setChecked(isChecked);
             }
             onlyInDMSwitch.setEnabled(disableReelsSwitch.isChecked());
@@ -662,13 +662,13 @@ public class DialogUtils {
         LinearLayout layout = createSwitchLayout(context);
 
         // Create all child switches
-        Switch[] switches = new Switch[]{createSwitch(context, "Disable Story Auto-Swipe", FeatureFlags.disableStoryFlipping), createSwitch(context, "Disable Video Autoplay", FeatureFlags.disableVideoAutoPlay), createSwitch(context, "Show Follower Toast", FeatureFlags.showFollowerToast), createSwitch(context, "Show Feature Toasts", FeatureFlags.showFeatureToasts)};
+        MaterialSwitch[] switches = new MaterialSwitch[]{createSwitch(context, "Disable Story Auto-Swipe", FeatureFlags.disableStoryFlipping), createSwitch(context, "Disable Video Autoplay", FeatureFlags.disableVideoAutoPlay), createSwitch(context, "Show Follower Toast", FeatureFlags.showFollowerToast), createSwitch(context, "Show Feature Toasts", FeatureFlags.showFeatureToasts)};
 
         // Create Enable/Disable All switch
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch enableAllSwitch = createSwitch(context, "Enable/Disable All", areAllEnabled(switches));
+        MaterialSwitch enableAllSwitch = createSwitch(context, "Enable/Disable All", areAllEnabled(switches));
 
         enableAllSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            for (Switch s : switches) {
+            for (MaterialSwitch s : switches) {
                 s.setChecked(isChecked);
             }
         });
@@ -679,7 +679,7 @@ public class DialogUtils {
                 enableAllSwitch.setOnCheckedChangeListener(null);
                 enableAllSwitch.setChecked(areAllEnabled(switches));
                 enableAllSwitch.setOnCheckedChangeListener((buttonView2, isChecked2) -> {
-                    for (Switch s2 : switches) {
+                    for (MaterialSwitch s2 : switches) {
                         s2.setChecked(isChecked2);
                     }
                 });
@@ -709,7 +709,7 @@ public class DialogUtils {
         layout.addView(createEnableAllSwitch(context, enableAllSwitch));
         layout.addView(createDivider(context));
 
-        for (Switch s : switches) {
+        for (MaterialSwitch s : switches) {
             layout.addView(s);
         }
 
@@ -740,7 +740,7 @@ public class DialogUtils {
         creator.setGravity(Gravity.CENTER);
         creator.setPadding(0, 0, 0, 30);
 
-        Button githubButton = new Button(context);
+        MaterialButton githubButton = new MaterialButton(context);
         githubButton.setText("🌐 GitHub Repo");
         githubButton.setTextColor(Color.WHITE);
         githubButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#3F51B5")));
@@ -779,7 +779,7 @@ public class DialogUtils {
         message.setGravity(Gravity.CENTER);
         message.setPadding(0, 0, 0, 30);
 
-        Button restartButton = new Button(context);
+        MaterialButton restartButton = new MaterialButton(context);
         restartButton.setText("🔁 Restart Now");
         restartButton.setTextColor(Color.WHITE);
         restartButton.setPadding(40, 20, 40, 20);
@@ -858,79 +858,70 @@ public class DialogUtils {
     private static LinearLayout createSwitchLayout(Context context) {
         LinearLayout layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(40, 30, 40, 30);
-        layout.setDividerDrawable(new ColorDrawable(Color.DKGRAY));
-        layout.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
-        layout.setDividerPadding(20);
-
+        layout.setPadding(dpToPx(context, 16), dpToPx(context, 12), dpToPx(context, 16), dpToPx(context, 12));
         return layout;
     }
 
-    private static Switch createSwitch(Context context, String label, boolean defaultState) {
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch toggle = new Switch(context);
+    private static MaterialSwitch createSwitch(Context context, String label, boolean defaultState) {
+        MaterialSwitch toggle = new MaterialSwitch(context);
         toggle.setText(label);
         toggle.setChecked(defaultState);
-        toggle.setPadding(30, 20, 30, 20);
+        toggle.setPadding(dpToPx(context, 16), dpToPx(context, 12), dpToPx(context, 16), dpToPx(context, 12));
         toggle.setTextColor(Color.WHITE);
+        toggle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
         toggle.setThumbTintList(createThumbColor());
         toggle.setTrackTintList(createTrackColor());
-        toggle.setTextSize(16);
         return toggle;
     }
 
     private static ColorStateList createThumbColor() {
-        return new ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled},          // Disabled
-                new int[]{android.R.attr.state_checked},           // Checked
-                new int[]{-android.R.attr.state_checked}           // Unchecked
-        }, new int[]{Color.parseColor("#555555"),  // Disabled
-                Color.parseColor("#448AFF"),  // ON
-                Color.parseColor("#FFFFFF")   // OFF
+        return new ColorStateList(new int[][]{
+                new int[]{-android.R.attr.state_enabled},
+                new int[]{android.R.attr.state_checked},
+                new int[]{-android.R.attr.state_checked}
+        }, new int[]{
+                Color.parseColor("#555555"),
+                Color.parseColor("#448AFF"),
+                Color.parseColor("#FFFFFF")
         });
     }
 
     private static ColorStateList createTrackColor() {
-        return new ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled},          // Disabled
-                new int[]{android.R.attr.state_checked},           // Checked
-                new int[]{-android.R.attr.state_checked}           // Unchecked
-        }, new int[]{Color.parseColor("#777777"),  // Disabled
-                Color.parseColor("#1C4C78"),  // ON
-                Color.parseColor("#CFD8DC")   // OFF
+        return new ColorStateList(new int[][]{
+                new int[]{-android.R.attr.state_enabled},
+                new int[]{android.R.attr.state_checked},
+                new int[]{-android.R.attr.state_checked}
+        }, new int[]{
+                Color.parseColor("#777777"),
+                Color.parseColor("#1C4C78"),
+                Color.parseColor("#CFD8DC")
         });
     }
 
     private static View createClickableSection(Context context, String label, Runnable onClick) {
         TextView section = new TextView(context);
         section.setText(label);
-        section.setTextSize(18);
+        section.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
         section.setTextColor(Color.WHITE);
-        section.setPadding(20, 24, 20, 24);
-
-        StateListDrawable states = new StateListDrawable();
-        states.addState(new int[]{android.R.attr.state_pressed}, new ColorDrawable(Color.parseColor("#40FFFFFF")));
-        states.addState(new int[]{}, new ColorDrawable(Color.TRANSPARENT));
-        section.setBackground(states);
-
+        section.setPadding(dpToPx(context, 16), dpToPx(context, 16), dpToPx(context, 16), dpToPx(context, 16));
+        section.setBackground(createRippleDrawable(Color.parseColor("#40FFFFFF")));
         section.setOnClickListener(v -> onClick.run());
         return section;
     }
 
-
-    private static LinearLayout createEnableAllSwitch(Context context, @SuppressLint("UseSwitchCompatOrMaterialCode") Switch enableAllSwitch) {
-        // Customize the main Enable/Disable All switch style
-        enableAllSwitch.setTextSize(18f);
+    private static LinearLayout createEnableAllSwitch(Context context, MaterialSwitch enableAllSwitch) {
+        enableAllSwitch.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
         enableAllSwitch.setTextColor(Color.WHITE);
-        enableAllSwitch.setTypeface(null, Typeface.BOLD);
-        enableAllSwitch.setPadding(40, 40, 40, 40);
+        enableAllSwitch.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        enableAllSwitch.setPadding(dpToPx(context, 16), dpToPx(context, 16), dpToPx(context, 16), dpToPx(context, 16));
 
-        // Create a container layout
         LinearLayout container = new LinearLayout(context);
         container.setOrientation(LinearLayout.VERTICAL);
-        container.setPadding(20, 20, 20, 20);
+        container.setPadding(dpToPx(context, 8), dpToPx(context, 8), dpToPx(context, 8), dpToPx(context, 8));
 
-        // Background with rounded corners
         GradientDrawable background = new GradientDrawable();
-        background.setColor(Color.parseColor("#333333")); // Dark grey background
-        background.setCornerRadius(24);
+        background.setColor(Color.parseColor("#333333"));
+        background.setCornerRadius(dpToPx(context, 16));
         container.setBackground(background);
 
         container.addView(enableAllSwitch);
@@ -938,11 +929,27 @@ public class DialogUtils {
         return container;
     }
 
-    private static boolean areAllEnabled(Switch[] switches) {
-        for (Switch s : switches) {
+    private static boolean areAllEnabled(MaterialSwitch[] switches) {
+        for (MaterialSwitch s : switches) {
             if (!s.isChecked()) return false;
         }
         return true;
+    }
+
+    private static RippleDrawable createRippleDrawable(int rippleColor) {
+        return new RippleDrawable(
+                ColorStateList.valueOf(rippleColor),
+                null,
+                new ColorDrawable(Color.WHITE)
+        );
+    }
+
+    private static int dpToPx(Context context, int dp) {
+        return (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dp,
+                context.getResources().getDisplayMetrics()
+        );
     }
 
 }
